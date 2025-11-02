@@ -1,5 +1,5 @@
 import { User } from "../models/userModels.js";
-import type { signUpDto } from "../dtos/request/userRequest.js";
+import type { loginDto, signUpDto } from "../dtos/request/userRequest.js";
 import { standardResponse } from "../response/standardResponse.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import bcrypt from "bcrypt";
@@ -27,8 +27,14 @@ export const signUp = catchAsync(async (req: any, res: any) => {
 
   if (!passwordRegex.test(password)) {
     return res
-      .status(400)
+      .status(200)
       .json(standardResponse(null, "Please use correct password", 400));
+  }
+
+  const existingUser = await User.findOne({ email });
+  console.log(existingUser);
+  if (existingUser) {
+    return res.status(409).json({ message: "User already exist" });
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
@@ -45,3 +51,13 @@ export const signUp = catchAsync(async (req: any, res: any) => {
     .status(201)
     .json(standardResponse(newUser, "User created successfully", 201));
 });
+
+export const loginUser = async (req: any, res: any) => {
+  const { username, password }: loginDto = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(200)
+      .json(standardResponse(null, "Invalid credentials", 401));
+  }
+};

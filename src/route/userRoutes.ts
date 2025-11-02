@@ -1,5 +1,5 @@
 import Express from "express";
-import { signUp } from "../controllers/userControllers.js";
+import { signUp, loginUser } from "../controllers/userControllers.js";
 
 const router = Express.Router();
 
@@ -7,7 +7,7 @@ const router = Express.Router();
 router.post("/", signUp);
 
 //Login Users
-// router.post("/api/auth/login", loginUsers);
+router.post("/", loginUser);
 
 // //Get the loggedIn Users profile
 // router.get("/api/users/profile", loggedUserProfile);

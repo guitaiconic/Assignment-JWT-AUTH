@@ -27,6 +27,7 @@ mongoose
 
 //Routes
 app.use("/api/users", userRoute);
+app.use("/api/Auth/login", userRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is connect to port ${PORT}`);
