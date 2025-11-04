@@ -3,6 +3,7 @@ import type { loginDto, signUpDto } from "../dtos/request/userRequest.js";
 import { standardResponse } from "../response/standardResponse.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import bcrypt from "bcrypt";
+import { generateToken } from "../middlewares/authMiddleware.js";
 
 //Creating Users signUp
 
@@ -27,10 +28,11 @@ export const signUp = catchAsync(async (req: any, res: any) => {
 
   if (!passwordRegex.test(password)) {
     return res
-      .status(200)
+      .status(400)
       .json(standardResponse(null, "Please use correct password", 400));
   }
 
+  //Check for existing User
   const existingUser = await User.findOne({ email });
   console.log(existingUser);
   if (existingUser) {
@@ -52,12 +54,23 @@ export const signUp = catchAsync(async (req: any, res: any) => {
     .json(standardResponse(newUser, "User created successfully", 201));
 });
 
-export const loginUser = async (req: any, res: any) => {
+//Login User
+export const login = catchAsync(async (req: any, res: any) => {
   const { username, password }: loginDto = req.body;
 
   if (!username || !password) {
     return res
-      .status(200)
+      .status(400)
       .json(standardResponse(null, "Invalid credentials", 401));
   }
-};
+
+  const user = await User.findOne({ username }).select("+password");
+
+  console.log(user);
+
+  const token = "";
+  res.status(200).json({
+    status: "success",
+    token,
+  });
+});

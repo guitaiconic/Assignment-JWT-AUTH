@@ -5,9 +5,8 @@ import cors from "cors";
 import userRoute from "./route/userRoutes.js";
 
 dotenv.config();
-
 const PORT = process.env.PORT || 8080;
-const MONGODB_URL = process.env.MONGODB_URL || "mongodb://localhost:27107/";
+const MONGODB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/";
 
 //Initializing APP
 const app = express();
@@ -25,9 +24,8 @@ mongoose
     console.log("MongoDb connection error", err);
   });
 
-//Routes
+//Mount User Routes
 app.use("/api/users", userRoute);
-app.use("/api/Auth/login", userRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is connect to port ${PORT}`);
