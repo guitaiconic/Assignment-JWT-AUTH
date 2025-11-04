@@ -64,13 +64,20 @@ export const login = catchAsync(async (req: any, res: any) => {
       .json(standardResponse(null, "Invalid credentials", 401));
   }
 
-  const user = await User.findOne({ username }).select("+password");
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res
+      .status(401)
+      .json(standardResponse(null, "invalid credentials", 401));
+  }
+  //Verify password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res
+      .status(401)
+      .json(standardResponse(null, "invalid credentials", 401));
+  }
 
-  console.log(user);
-
-  const token = "";
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+  const token = generateToken(String(user._id));
+  return res.status(201).json(standardResponse(token, "success", 201));
 });
