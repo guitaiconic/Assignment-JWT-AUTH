@@ -14,6 +14,10 @@ const app = express();
 //Middlewares
 app.use(cors());
 app.use(express.json());
+// app.use((req: any, res: any, next: any) => {
+//   req.resquestTime = new Date().toISOString();
+//   console.log(req.headers);
+// });
 
 mongoose
   .connect(MONGODB_URL)

@@ -6,14 +6,13 @@ import bcrypt from "bcrypt";
 import { generateToken } from "../middlewares/authMiddleware.js";
 
 //Creating Users signUp
-
 export const signUp = catchAsync(async (req: any, res: any) => {
   const { firstName, lastName, username, password, email }: signUpDto =
     req.body;
-  console.log(req.body);
+
   if (!email || !password || !firstName || !lastName || !username) {
     return res
-      .status(500)
+      .status(400)
       .json(standardResponse(null, "All field are required", 400));
   }
 
@@ -56,28 +55,77 @@ export const signUp = catchAsync(async (req: any, res: any) => {
 
 //Login User
 export const login = catchAsync(async (req: any, res: any) => {
+  // STAGE 1: Extract credentials from request body
   const { username, password }: loginDto = req.body;
 
+  // STAGE 2: Validate input - Check if credentials are provided
   if (!username || !password) {
     return res
       .status(400)
       .json(standardResponse(null, "Invalid credentials", 401));
   }
 
-  const user = await User.findOne({ username });
+  // STAGE 3: Find user in database by username
+  const user = await User.findOne({ username }).select("+password");
+
+  // STAGE 4: Check if user exists
   if (!user) {
     return res
       .status(401)
       .json(standardResponse(null, "invalid credentials", 401));
   }
-  //Verify password
+
+  // STAGE 5: Verify password using bcrypt
   const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  // STAGE 6: Check if password is correct
   if (!isPasswordValid) {
     return res
       .status(401)
       .json(standardResponse(null, "invalid credentials", 401));
   }
 
+  // STAGE 7: Generate JWT token for authenticated user
   const token = generateToken(String(user._id));
-  return res.status(201).json(standardResponse(token, "success", 201));
+
+  // STAGE 8: Return success response with token
+
+  res.status(200).json({
+    status: "success",
+    token,
+    data: {
+      id: user._id as string,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    },
+  });
+});
+
+//Creating a Profile page
+
+export const profile = catchAsync(async (req: any, res: any) => {
+  const user = req.user;
+
+  if (!user) {
+    return res
+      .status(404)
+      .json(standardResponse(null, "User profile doesn't exist", 404));
+  }
+
+  res.status(200).json(
+    standardResponse(
+      {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        userName: user.userName,
+        email: user.email,
+        createdAt: user.createdAt,
+      },
+      "Profile retrieve successfully",
+      200
+    )
+  );
 });

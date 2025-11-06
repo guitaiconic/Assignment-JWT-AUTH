@@ -1,12 +1,13 @@
 import Express from "express";
-import { signUp, login } from "../controllers/userControllers.js";
+import { signUp, login, profile } from "../controllers/userControllers.js";
+import { protect } from "../middlewares/authMiddleware.js";
 
 const router = Express.Router();
 
 // User authentication routes
 router.post("/signUp", signUp);
 router.post("/login", login);
-// router.get("/api/users/profile", loggedUserProfile);
+router.get("/profile", protect, profile);
 // router.get("/api/admin/users" getAllAdminUsers);
 // router.delete("/api/users/delete", DeleteOwnProfile)
 
