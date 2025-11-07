@@ -2,6 +2,7 @@ import JWT from "jsonwebtoken";
 import dotenv from "dotenv";
 import { standardResponse } from "../response/standardResponse.js";
 import { User } from "../models/userModels.js";
+import type { NextFunction } from "express";
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ export const generateToken = (id: String) => {
 
 //Middlewares to proctect routes
 
-export const protect = async (req: any, res: any) => {
+export const protect = async (req: any, res: any, next: NextFunction) => {
   let token;
 
   // Check if token exists in Authorization header
@@ -29,7 +30,7 @@ export const protect = async (req: any, res: any) => {
   console.log(token);
 
   if (!token) {
-    return res
+    return (res as any)
       .status(401)
       .json(
         standardResponse(
@@ -54,7 +55,7 @@ export const protect = async (req: any, res: any) => {
   console.log("Found User:", currentUser);
 
   if (!currentUser) {
-    return res
+    return (res as any)
       .status(401)
       .json(
         standardResponse(
@@ -67,5 +68,5 @@ export const protect = async (req: any, res: any) => {
 
   req.user = currentUser;
 
-  return res.status(200).json(standardResponse(req.user, "success", 200));
+  return next();
 };

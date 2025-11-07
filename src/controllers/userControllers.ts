@@ -90,17 +90,19 @@ export const login = catchAsync(async (req: any, res: any) => {
 
   // STAGE 8: Return success response with token
 
-  res.status(200).json({
-    status: "success",
-    token,
-    data: {
-      id: user._id as string,
-      username: user.username,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    },
-  });
+  res.status(200).json(
+    standardResponse(
+      {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+      },
+      "Login was successful",
+      200
+    )
+  );
 });
 
 //Creating a Profile page
