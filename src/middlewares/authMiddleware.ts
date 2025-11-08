@@ -70,3 +70,20 @@ export const protect = async (req: any, res: any, next: NextFunction) => {
 
   return next();
 };
+
+export const restrictedTo = (...role: string[]) => {
+  return (req: any, res: any, next: NextFunction) => {
+    if (!role.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json(
+          standardResponse(
+            null,
+            "You do not have permission to perfom this action",
+            403
+          )
+        );
+    }
+    next();
+  };
+};

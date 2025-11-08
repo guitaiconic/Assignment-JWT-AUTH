@@ -28,7 +28,7 @@ const userSchema: Schema = new Schema(
     password: {
       type: String,
       required: true,
-      select: false,
+      //select: false,
     },
     email: {
       type: String,
@@ -38,6 +38,11 @@ const userSchema: Schema = new Schema(
     isAdmin: {
       type: Boolean,
       default: false,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
     },
   },
   {

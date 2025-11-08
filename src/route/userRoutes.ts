@@ -1,6 +1,11 @@
 import Express from "express";
-import { signUp, login, profile } from "../controllers/userControllers.js";
-import { protect } from "../middlewares/authMiddleware.js";
+import {
+  signUp,
+  login,
+  profile,
+  getAllUsers,
+} from "../controllers/userControllers.js";
+import { restrictedTo, protect } from "../middlewares/authMiddleware.js";
 
 const router = Express.Router();
 
@@ -8,7 +13,7 @@ const router = Express.Router();
 router.post("/signUp", signUp);
 router.post("/login", login);
 router.get("/profile", protect, profile);
-// router.get("/api/admin/users" getAllAdminUsers);
+router.get("/users", restrictedTo("admin"), getAllUsers);
 // router.delete("/api/users/delete", DeleteOwnProfile)
 
 export default router;

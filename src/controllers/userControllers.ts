@@ -55,18 +55,17 @@ export const signUp = catchAsync(async (req: any, res: any) => {
 
 //Login User
 export const login = catchAsync(async (req: any, res: any) => {
-  // STAGE 1: Extract credentials from request body
-  const { username, password }: loginDto = req.body;
+  const { email, password }: loginDto = req.body;
 
-  // STAGE 2: Validate input - Check if credentials are provided
-  if (!username || !password) {
+  if (!email || !password) {
     return res
       .status(400)
       .json(standardResponse(null, "Invalid credentials", 401));
   }
 
   // STAGE 3: Find user in database by username
-  const user = await User.findOne({ username }).select("+password");
+  const user = await User.findOne({ email });
+  console.log(user);
 
   // STAGE 4: Check if user exists
   if (!user) {
@@ -98,6 +97,7 @@ export const login = catchAsync(async (req: any, res: any) => {
         lastName: user.lastName,
         username: user.username,
         email: user.email,
+        token,
       },
       "Login was successful",
       200
@@ -127,6 +127,31 @@ export const profile = catchAsync(async (req: any, res: any) => {
         createdAt: user.createdAt,
       },
       "Profile retrieve successfully",
+      200
+    )
+  );
+});
+
+export const getAllUsers = catchAsync(async (req: any, res: any) => {
+  // Fetch ALL users from database - NOT req.user
+  const users = await User.find();
+
+  console.log("Total users found:", users.length); // Add this
+  console.log("Users:", users);
+
+  res.status(200).json(
+    standardResponse(
+      {
+        count: users.length,
+        users: users.map((user) => ({
+          id: String(user._id),
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          email: user.email,
+        })),
+      },
+      "Users retrieved successfully",
       200
     )
   );
