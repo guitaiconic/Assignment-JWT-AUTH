@@ -1,48 +1,37 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Iuser extends Document {
-  firstName: string;
-  lastName: string;
+  name: string;
   username: string;
+  roles?: string;
   password: string;
   email: string;
-  isAdmin?: boolean;
 }
 
-const userSchema: Schema = new Schema(
+const userSchema: Schema = new Schema<Iuser>(
   {
-    firstName: {
+    name: {
       type: String,
       required: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
+      unique: true,
     },
 
     username: {
       type: String,
       required: true,
-      unique: true,
+    },
+    roles: {
+      type: String,
+      default: "user",
     },
     password: {
       type: String,
       required: true,
-      //select: false,
     },
     email: {
       type: String,
       required: true,
       unique: true,
-    },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
-    role: {
-      type: String,
-      enum: ["admin", "user"],
-      default: "user",
     },
   },
   {

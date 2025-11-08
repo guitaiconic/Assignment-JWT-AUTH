@@ -1,10 +1,8 @@
 export interface signUpDto {
-  firstName: string;
-  lastName: string;
+  name: string;
   username: string;
   password: string;
   email: string;
-  isAdmin?: boolean;
 }
 
 export interface loginDto {

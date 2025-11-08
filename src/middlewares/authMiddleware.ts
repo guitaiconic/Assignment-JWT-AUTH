@@ -2,9 +2,15 @@ import JWT from "jsonwebtoken";
 import dotenv from "dotenv";
 import { standardResponse } from "../response/standardResponse.js";
 import { User } from "../models/userModels.js";
-import type { NextFunction } from "express";
+import type { NextFunction, Response, Request } from "express";
 
 dotenv.config();
+
+interface IdecodedUser {
+  id: string;
+  iat: number;
+  exp: number;
+}
 
 //Middleware to generate Token
 export const generateToken = (id: String) => {
@@ -16,7 +22,7 @@ export const generateToken = (id: String) => {
 
 //Middlewares to proctect routes
 
-export const protect = async (req: any, res: any, next: NextFunction) => {
+export const protect = async (req: any, res: Response, next: NextFunction) => {
   let token;
 
   // Check if token exists in Authorization header
@@ -30,7 +36,7 @@ export const protect = async (req: any, res: any, next: NextFunction) => {
   console.log(token);
 
   if (!token) {
-    return (res as any)
+    return (res as Response)
       .status(401)
       .json(
         standardResponse(
@@ -44,9 +50,10 @@ export const protect = async (req: any, res: any, next: NextFunction) => {
   console.log("Extracted Token:", token);
 
   //Verify token
-  const decoded = JWT.verify(token, process.env.JWT_SECRET as string) as {
-    id: string;
-  };
+  const decoded: IdecodedUser = JWT.verify(
+    token,
+    process.env.JWT_SECRET as string
+  ) as unknown as IdecodedUser;
 
   console.log("Decoded:", decoded);
 
@@ -55,7 +62,7 @@ export const protect = async (req: any, res: any, next: NextFunction) => {
   console.log("Found User:", currentUser);
 
   if (!currentUser) {
-    return (res as any)
+    return (res as Response)
       .status(401)
       .json(
         standardResponse(
@@ -71,19 +78,21 @@ export const protect = async (req: any, res: any, next: NextFunction) => {
   return next();
 };
 
-export const restrictedTo = (...role: string[]) => {
-  return (req: any, res: any, next: NextFunction) => {
-    if (!role.includes(req.user.role)) {
+export const restrictedTo = (roles: string) => {
+  return (req: any, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (!user) {
       return res
-        .status(403)
-        .json(
-          standardResponse(
-            null,
-            "You do not have permission to perfom this action",
-            403
-          )
-        );
+        .status(400)
+        .json(standardResponse(null, "User not found", 400));
     }
+
+    if (user.roles !== roles) {
+      return res
+        .status(401)
+        .json(standardResponse(null, "Route not accessible", 401));
+    }
+
     next();
   };
 };

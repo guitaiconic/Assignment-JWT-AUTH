@@ -7,10 +7,9 @@ import { generateToken } from "../middlewares/authMiddleware.js";
 
 //Creating Users signUp
 export const signUp = catchAsync(async (req: any, res: any) => {
-  const { firstName, lastName, username, password, email }: signUpDto =
-    req.body;
+  const { name, username, password, email }: signUpDto = req.body;
 
-  if (!email || !password || !firstName || !lastName || !username) {
+  if (!name || !username || !email || !password) {
     return res
       .status(400)
       .json(standardResponse(null, "All field are required", 400));
@@ -41,8 +40,7 @@ export const signUp = catchAsync(async (req: any, res: any) => {
   const hashPassword = await bcrypt.hash(password, 10);
 
   const newUser = await User.create({
-    firstName,
-    lastName,
+    name,
     username,
     password: hashPassword,
     email,
@@ -85,7 +83,7 @@ export const login = catchAsync(async (req: any, res: any) => {
   }
 
   // STAGE 7: Generate JWT token for authenticated user
-  const token = generateToken(String(user._id));
+  const token = generateToken(user._id as string);
 
   // STAGE 8: Return success response with token
 
@@ -93,10 +91,9 @@ export const login = catchAsync(async (req: any, res: any) => {
     standardResponse(
       {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
+        name: user.name,
         email: user.email,
+        password: user.password,
         token,
       },
       "Login was successful",
@@ -106,7 +103,6 @@ export const login = catchAsync(async (req: any, res: any) => {
 });
 
 //Creating a Profile page
-
 export const profile = catchAsync(async (req: any, res: any) => {
   const user = req.user;
 
@@ -120,9 +116,7 @@ export const profile = catchAsync(async (req: any, res: any) => {
     standardResponse(
       {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userName: user.userName,
+        name: user.name,
         email: user.email,
         createdAt: user.createdAt,
       },
@@ -135,24 +129,15 @@ export const profile = catchAsync(async (req: any, res: any) => {
 export const getAllUsers = catchAsync(async (req: any, res: any) => {
   // Fetch ALL users from database - NOT req.user
   const users = await User.find();
+  console.log(users);
 
-  console.log("Total users found:", users.length); // Add this
-  console.log("Users:", users);
+  if (!users) {
+    return res
+      .status(404)
+      .json(standardResponse(null, "User data not accessible", 404));
+  }
 
-  res.status(200).json(
-    standardResponse(
-      {
-        count: users.length,
-        users: users.map((user) => ({
-          id: String(user._id),
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
-          email: user.email,
-        })),
-      },
-      "Users retrieved successfully",
-      200
-    )
-  );
+  res
+    .status(200)
+    .json(standardResponse(users, "User data retrieved successfully", 200));
 });

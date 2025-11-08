@@ -13,7 +13,7 @@ const router = Express.Router();
 router.post("/signUp", signUp);
 router.post("/login", login);
 router.get("/profile", protect, profile);
-router.get("/users", restrictedTo("admin"), getAllUsers);
+router.get("/users", protect, restrictedTo("admin"), getAllUsers);
 // router.delete("/api/users/delete", DeleteOwnProfile)
 
 export default router;
