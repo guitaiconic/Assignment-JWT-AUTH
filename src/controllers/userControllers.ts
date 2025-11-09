@@ -137,7 +137,23 @@ export const getAllUsers = catchAsync(async (req: any, res: any) => {
       .json(standardResponse(null, "User data not accessible", 404));
   }
 
-  res
+  return res
     .status(200)
     .json(standardResponse(users, "User data retrieved successfully", 200));
+});
+
+export const DeleteOwnProfile = catchAsync(async (req: any, res: any) => {
+  const id = req.user._id;
+
+  const user = await User.findByIdAndDelete(id);
+
+  if (!user) {
+    return res.status(404).json(standardResponse(null, "User not found", 404));
+  }
+
+  return res
+    .status(204)
+    .json(
+      standardResponse(null, "You account has been deleted successfully", 204)
+    );
 });

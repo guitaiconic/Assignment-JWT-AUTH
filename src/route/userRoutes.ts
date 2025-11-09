@@ -4,6 +4,7 @@ import {
   login,
   profile,
   getAllUsers,
+  DeleteOwnProfile,
 } from "../controllers/userControllers.js";
 import { restrictedTo, protect } from "../middlewares/authMiddleware.js";
 
@@ -14,6 +15,6 @@ router.post("/signUp", signUp);
 router.post("/login", login);
 router.get("/profile", protect, profile);
 router.get("/users", protect, restrictedTo("admin"), getAllUsers);
-// router.delete("/api/users/delete", DeleteOwnProfile)
+router.delete("/delete", protect, DeleteOwnProfile);
 
 export default router;
