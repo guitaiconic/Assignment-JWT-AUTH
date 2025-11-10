@@ -144,6 +144,7 @@ export const getAllUsers = catchAsync(async (req: any, res: any) => {
 
 export const DeleteOwnProfile = catchAsync(async (req: any, res: any) => {
   const id = req.user._id;
+  console.log(id);
 
   const user = await User.findByIdAndDelete(id);
 
